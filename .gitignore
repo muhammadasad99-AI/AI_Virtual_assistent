@@ -1,0 +1,29 @@
+
+# DATABASE (contains personal reminders/events)
+assistant.db
+
+# PYTHON CACHE
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ENVIRONMENT & SECRETS
+.env
+venv/
+env/
+.venv/
+
+# VS CODE
+.vscode/
+
+# WINDOWS SYSTEM FILES
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# SPACY & NLTK DOWNLOADED DATA
+nltk_data/
+
+# LOGS
+*.log
