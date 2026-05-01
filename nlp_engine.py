@@ -4,11 +4,12 @@ import re
 from datetime import datetime, timedelta
 
 # Download required NLTK data
+import nltk
 nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
 nltk.download('wordnet', quiet=True)
 nltk.download('stopwords', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
-nltk.download('punkt_tab', quiet=True)
 
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -33,8 +34,10 @@ INTENTS = {
         "remind", "reminder", "alert", "notify", "notification", "set alarm", "alarm"
     ],
     "add_schedule": [
-        "schedule", "meeting", "appointment", "event", "add event", "book", "plan"
-    ],
+    "schedule", "meeting", "appointment", "event", "book", "plan",
+    "make", "create", "set up", "organize", "arrange", "add meeting",
+    "job", "jobs", "work", "session", "call"
+     ],
     "view_schedule": [
     "show schedule", "view schedule", "what's scheduled", "my events",
     "list events", "show events", "upcoming", "calendar",
@@ -92,7 +95,9 @@ def detect_intent(user_input: str) -> str:
         return "view_schedule"
 
     # ── STEP 3: Check greet & help ───────────────
-    if any(word in text for word in ["hello", "hi", "hey", "good morning", "good evening"]):
+    greet_words = ["hello", "hi", "hey", "good morning", "good evening"]
+    is_short = len(tokens) <= 4
+    if any(word in text for word in greet_words) and is_short:
         return "greet"
     if any(word in text for word in ["help", "what can you do", "commands", "features"]):
         return "help"
@@ -102,7 +107,9 @@ def detect_intent(user_input: str) -> str:
     # ── STEP 4: Check set/add intents LAST ───────
     if any(word in text for word in ["remind", "reminder", "alert", "notify", "alarm"]):
         return "set_reminder"
-    if any(word in text for word in ["schedule", "meeting", "appointment", "event", "book", "plan"]):
+    if any(word in text for word in ["schedule", "meeting", "appointment", "event",
+                                  "book", "plan", "make", "create", "organize",
+                                  "arrange","session"]):
         return "add_schedule"
 
     # ── STEP 5: Score-based fallback ─────────────
@@ -130,6 +137,7 @@ def extract_entities(user_input: str) -> dict:
         "time": None,
         "date": None,
         "title": None,
+        "location": None, 
         "raw_entities": []
     }
 
@@ -139,6 +147,8 @@ def extract_entities(user_input: str) -> dict:
             entities["time"] = ent.text
         elif ent.label_ == "DATE":
             entities["date"] = ent.text
+        elif ent.label_ in  ["GPE", "LOC"]:
+            entities["location"] = ent.text
 
     # Extract title: text after keywords like "remind me to", "schedule", "about"
     title_patterns = [
