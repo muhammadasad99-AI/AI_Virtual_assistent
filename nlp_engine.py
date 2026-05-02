@@ -1,31 +1,34 @@
-import nltk
-import spacy
-import re
-from datetime import datetime, timedelta
+import sys
+import subprocess
 
-# Download required NLTK data
+# Force install on cloud
+subprocess.run([sys.executable, "-m", "pip", "install", "nltk", "--quiet"], check=False)
+subprocess.run([sys.executable, "-m", "pip", "install", "spacy", "--quiet"], check=False)
+
 import nltk
 nltk.download('punkt', quiet=True)
 nltk.download('punkt_tab', quiet=True)
 nltk.download('wordnet', quiet=True)
 nltk.download('stopwords', quiet=True)
 nltk.download('averaged_perceptron_tagger', quiet=True)
+nltk.download('averaged_perceptron_tagger_eng', quiet=True)
+
+import spacy
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], check=False)
+    nlp = spacy.load("en_core_web_sm")
 
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Load spaCy model
-try:
-    nlp = spacy.load("en_core_web_sm")
-except:
-    import subprocess
-    subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-    nlp = spacy.load("en_core_web_sm")
-
+# ✅ These lines stay exactly as they are — no change needed
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
+# ... rest of your code stays the same
 # ─────────────────────────────────────────────
 # INTENT DEFINITIONS
 # ─────────────────────────────────────────────
