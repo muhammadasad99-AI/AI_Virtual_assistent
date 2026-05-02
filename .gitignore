@@ -27,3 +27,8 @@ nltk_data/
 
 # LOGS
 *.log
+assistant.db
+
+voice_engine.py
+
+assistant.db
