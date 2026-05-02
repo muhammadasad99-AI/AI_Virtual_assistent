@@ -388,12 +388,20 @@ if audio and audio.get("bytes"):
     with st.spinner("🎤 Understanding your voice..."):
         try:
             recognizer = sr.Recognizer()
-            audio_file = io.BytesIO(audio["bytes"])
-            with sr.AudioFile(audio_file) as source:
+            from pydub import AudioSegment
+
+            # Convert WebM/OGG to WAV
+            audio_bytes = io.BytesIO(audio["bytes"])
+            audio_segment = AudioSegment.from_file(audio_bytes)
+            wav_bytes = io.BytesIO()
+            audio_segment.export(wav_bytes, format="wav")
+            wav_bytes.seek(0)
+
+            with sr.AudioFile(wav_bytes) as source:
                 audio_data = recognizer.record(source)
             voice_text = recognizer.recognize_google(audio_data)
 
-            # ✅ Auto process — no button needed!
+            # ✅ Auto process
             response, nlp_result = generate_response(voice_text)
             st.session_state.chat_history.append({
                 "user": f"🎤 {voice_text}",
@@ -401,7 +409,6 @@ if audio and audio.get("bytes"):
                 "intent": nlp_result["intent"],
                 "nlp_data": nlp_result
             })
-            # 🔊 Speak the response naturally
             speak_response(response)
             st.rerun()
 
